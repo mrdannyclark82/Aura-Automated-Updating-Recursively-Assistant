@@ -18,6 +18,7 @@ import {
   Zap,
   HelpCircle,
   Cpu,
+  Database,
 } from 'lucide-react';
 
 interface ChatBubbleProps {
@@ -156,7 +157,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
         {message.memorySources && message.memorySources.length > 0 && (
           <div className="flex items-center gap-1.5 mb-1 px-1">
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-mono bg-purple-500/15 text-purple-300 border-purple-500/30">
-              <Cpu className="w-3 h-3 text-purple-400" />
+              <Database className="w-3 h-3 text-purple-400" />
               <span>Grounded in Memory: {message.memorySources.join(', ')}</span>
             </span>
           </div>

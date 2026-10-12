@@ -801,17 +801,36 @@ const App: React.FC = () => {
           handleSpeakText(accumulatedText);
         }
       } catch (error: any) {
-        console.error('Error in agent response stream:', error);
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === modelMsgId
-              ? {
-                  ...m,
-                  text: 'I apologize, an unexpected reasoning error occurred during execution. Please check tool logs or try rephrasing.',
-                }
-              : m
-          )
-        );
+        console.warn('Cloud Gemini stream encountered issue, executing Local Gemma on-device fallback:', error);
+        try {
+          setCognitiveState('synthesizing');
+          let fallbackText = '';
+          const fallbackStream = sendLocalGemmaStream(
+            userText,
+            'You are Aura with on-device WebGPU Gemma model runtime.',
+            recentHistoryTuples,
+            uploadedMemories
+          );
+          for await (const chunk of fallbackStream) {
+            fallbackText += chunk.text;
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === modelMsgId ? { ...m, text: fallbackText, modelUsed: 'gemma-local' } : m
+              )
+            );
+          }
+        } catch (localErr) {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === modelMsgId
+                ? {
+                    ...m,
+                    text: 'I apologize, an unexpected reasoning error occurred. Please check your network connection or try rephrasing.',
+                  }
+                : m
+            )
+          );
+        }
       } finally {
         setIsStreaming(false);
         setActiveTool(undefined);
@@ -1213,6 +1232,20 @@ const App: React.FC = () => {
             title={voiceEnabled ? 'Mute AI voice output' : 'Enable AI voice output'}
           >
             {voiceEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+          </button>
+
+          {/* New Chat / Reset Messages */}
+          <button
+            onClick={() => {
+              if (messages.length > 0) {
+                setMessages([]);
+                triggerToast('Started a fresh conversation session.');
+              }
+            }}
+            className="p-2 rounded-xl bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+            title="Start New Chat Session"
+          >
+            <RotateCcw className="w-4 h-4" />
           </button>
 
           {/* Settings Modal Toggle */}
