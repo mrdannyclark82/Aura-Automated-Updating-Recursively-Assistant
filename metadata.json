@@ -1,0 +1,8 @@
+{
+  "name": "Aura: The Self-Improving AI Assistant",
+  "description": "A state-of-the-art, autonomous virtual assistant that formulates, executes, and refines plans to achieve user-defined goals. Featuring a modern UI and a dynamic visual representation of the AI's cognitive states.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": []
+}
